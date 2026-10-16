@@ -1,1147 +1,637 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dr. sai Oncology Knowledge Base | Persistent Dashboard</title>
-    <style>
-        :root {
-            --bg-color: #0f172a;
-            --card-bg: #1e293b;
-            --card-hover: #334155;
-            --text-main: #f8fafc;
-            --text-muted: #94a3b8;
-            --accent-blue: #38bdf8;
-            --accent-red: #f43f5e;
-            --accent-gold: #f59e0b;
-            --accent-green: #10b981;
-            --border-color: #334155;
-            --modal-overlay: rgba(15, 23, 42, 0.85);
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dr. Sai Oncology Dashboard - 肺癌薬物療法</title>
+  <style>
+    :root {
+      --bg-main: #0f172a;
+      --card-bg: #1e293b;
+      --text-main: #f8fafc;
+      --text-sub: #94a3b8;
+      --accent-blue: #38bdf8;
+      --accent-red: #f43f5e;
+      --accent-gold: #f59e0b;
+      --border-color: #334155;
+    }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-        }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
-        body {
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            padding: 20px;
-            line-height: 1.6;
-        }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background-color: var(--bg-main);
+      color: var(--text-main);
+      padding: 24px;
+      line-height: 1.6;
+    }
 
-        header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding-bottom: 20px;
-            border-bottom: 1px solid var(--border-color);
-            margin-bottom: 25px;
-            flex-wrap: wrap;
-            gap: 15px;
-        }
+    header {
+      margin-bottom: 24px;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
 
-        .header-title h1 {
-            font-size: 1.8rem;
-            color: var(--accent-blue);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
+    h1 {
+      font-size: 1.8rem;
+      color: var(--accent-blue);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
 
-        .header-title p {
-            color: var(--text-muted);
-            font-size: 0.9rem;
-        }
+    .subtitle {
+      font-size: 0.9rem;
+      color: var(--text-sub);
+    }
 
-        .controls {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-            flex-wrap: wrap;
-        }
+    .controls {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
 
-        .btn {
-            background-color: var(--card-bg);
-            color: var(--text-main);
-            border: 1px solid var(--border-color);
-            padding: 8px 14px;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            font-size: 0.88rem;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-        }
+    .search-box {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      outline: none;
+      width: 240px;
+    }
 
-        .btn:hover {
-            border-color: var(--accent-blue);
-            color: var(--accent-blue);
-        }
+    .search-box:focus {
+      border-color: var(--accent-blue);
+    }
 
-        .btn-primary {
-            background-color: rgba(56, 189, 248, 0.15);
-            border-color: var(--accent-blue);
-            color: var(--accent-blue);
-            font-weight: bold;
-        }
+    .filter-btn {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      color: var(--text-sub);
+      padding: 8px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
 
-        .btn-primary:hover {
-            background-color: var(--accent-blue);
-            color: #0f172a;
-        }
+    .filter-btn.active, .filter-btn:hover {
+      background: var(--accent-blue);
+      color: var(--bg-main);
+      border-color: var(--accent-blue);
+    }
 
-        .btn-success {
-            background-color: rgba(16, 185, 129, 0.15);
-            border-color: var(--accent-green);
-            color: var(--accent-green);
-        }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 20px;
+    }
 
-        .btn-success:hover {
-            background-color: var(--accent-green);
-            color: #0f172a;
-        }
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 20px;
+      cursor: pointer;
+      transition: transform 0.2s, border-color 0.2s;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
 
-        .btn-warning {
-            background-color: rgba(245, 158, 11, 0.15);
-            border-color: var(--accent-gold);
-            color: var(--accent-gold);
-        }
+    .card:hover {
+      transform: translateY(-4px);
+      border-color: var(--accent-blue);
+    }
 
-        .btn-warning:hover {
-            background-color: var(--accent-gold);
-            color: #0f172a;
-        }
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 12px;
+    }
 
-        .filter-btn.active {
-            background-color: var(--accent-blue);
-            color: #0f172a;
-            font-weight: bold;
-            border-color: var(--accent-blue);
-        }
+    .badge {
+      font-size: 0.75rem;
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-weight: bold;
+      text-transform: uppercase;
+    }
 
-        .search-box {
-            background-color: var(--card-bg);
-            border: 1px solid var(--border-color);
-            color: var(--text-main);
-            padding: 8px 14px;
-            border-radius: 6px;
-            outline: none;
-            width: 200px;
-            font-size: 0.88rem;
-        }
+    .badge-latest {
+      background: rgba(56, 189, 248, 0.2);
+      color: var(--accent-blue);
+      border: 1px solid var(--accent-blue);
+    }
 
-        .search-box:focus {
-            border-color: var(--accent-blue);
-        }
+    .badge-history {
+      background: rgba(245, 158, 11, 0.2);
+      color: var(--accent-gold);
+      border: 1px solid var(--accent-gold);
+    }
 
-        .stats-bar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 25px;
-            font-size: 0.9rem;
-            background-color: rgba(30, 41, 59, 0.5);
-            padding: 12px 20px;
-            border-radius: 8px;
-            border: 1px solid var(--border-color);
-            flex-wrap: wrap;
-            gap: 15px;
-        }
+    .card-title {
+      font-size: 1.3rem;
+      font-weight: bold;
+      color: var(--text-main);
+    }
 
-        .stats-left {
-            display: flex;
-            gap: 20px;
-            align-items: center;
-        }
+    .card-summary {
+      font-size: 0.9rem;
+      color: var(--text-sub);
+      margin-bottom: 12px;
+    }
 
-        .stat-badge {
-            padding: 2px 8px;
-            border-radius: 12px;
-            font-size: 0.8rem;
-            font-weight: bold;
-        }
+    .predecessor-link {
+      color: var(--accent-blue);
+      text-decoration: underline;
+      cursor: pointer;
+      font-weight: bold;
+      display: inline-block;
+      margin-top: 4px;
+    }
 
-        .badge-latest { background-color: rgba(56, 189, 248, 0.2); color: var(--accent-blue); border: 1px solid var(--accent-blue); }
-        .badge-history { background-color: rgba(245, 158, 11, 0.2); color: var(--accent-gold); border: 1px solid var(--accent-gold); }
+    .card-footer {
+      font-size: 0.8rem;
+      color: var(--text-sub);
+      border-top: 1px solid var(--border-color);
+      padding-top: 8px;
+      margin-top: 8px;
+    }
 
-        .grid-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-            gap: 20px;
-        }
+    /* Modal Styling */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(15, 23, 42, 0.8);
+      backdrop-filter: blur(4px);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      padding: 20px;
+    }
 
-        .trial-card {
-            background-color: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 10px;
-            padding: 18px;
-            cursor: pointer;
-            transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            position: relative;
-            overflow: hidden;
-        }
+    .modal-content {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      max-width: 800px;
+      width: 100%;
+      max-height: 85vh;
+      overflow-y: auto;
+      padding: 32px;
+      position: relative;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+    }
 
-        .trial-card:hover {
-            transform: translateY(-3px);
-            border-color: var(--accent-blue);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
-        }
+    .close-btn {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: none;
+      border: none;
+      color: var(--text-sub);
+      font-size: 1.5rem;
+      cursor: pointer;
+    }
 
-        .trial-card.history { border-left: 4px solid var(--accent-gold); }
-        .trial-card.latest { border-left: 4px solid var(--accent-blue); }
+    .close-btn:hover {
+      color: var(--text-main);
+    }
 
-        .card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 10px;
-        }
+    .modal-section {
+      margin-bottom: 24px;
+    }
 
-        .card-title {
-            font-size: 1.2rem;
-            font-weight: bold;
-            color: var(--text-main);
-        }
+    .modal-section h3 {
+      font-size: 1.1rem;
+      color: var(--accent-blue);
+      margin-bottom: 8px;
+      border-left: 4px solid var(--accent-blue);
+      padding-left: 8px;
+    }
 
-        .card-subtitle {
-            font-size: 0.85rem;
-            color: var(--text-muted);
-            margin-bottom: 12px;
-        }
+    .critical-appraisal-box {
+      background: rgba(244, 63, 94, 0.1);
+      border: 2px solid var(--accent-red);
+      border-radius: 12px;
+      padding: 16px;
+      margin-top: 24px;
+    }
 
-        .card-tags {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 6px;
-            margin-bottom: 12px;
-        }
+    .critical-appraisal-box h3 {
+      color: var(--accent-red);
+      border-left: 4px solid var(--accent-red);
+    }
 
-        .tag {
-            font-size: 0.75rem;
-            padding: 2px 8px;
-            border-radius: 4px;
-            background-color: rgba(255, 255, 255, 0.05);
-            color: var(--text-muted);
-        }
+    /* Sub Modal */
+    .sub-modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.6);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 1100;
+      padding: 20px;
+    }
 
-        .card-one-liner {
-            font-size: 0.88rem;
-            color: #cbd5e1;
-            margin-bottom: 15px;
-            display: -webkit-box;
-            -webkit-line-clamp: 3;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-        }
-
-        .card-footer {
-            font-size: 0.78rem;
-            color: var(--text-muted);
-            display: flex;
-            justify-content: space-between;
-            border-top: 1px solid rgba(255, 255, 255, 0.05);
-            padding-top: 10px;
-        }
-
-        /* Modal Styles */
-        .modal, .sub-modal {
-            display: none;
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background-color: var(--modal-overlay);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
-            backdrop-filter: blur(5px);
-            padding: 20px;
-        }
-
-        .sub-modal { z-index: 1100; background-color: rgba(0, 0, 0, 0.75); }
-
-        .modal-content, .sub-modal-content {
-            background-color: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            width: 100%;
-            max-width: 900px;
-            max-height: 90vh;
-            overflow-y: auto;
-            padding: 30px;
-            position: relative;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
-        }
-
-        .sub-modal-content {
-            background-color: #0f172a;
-            border: 2px solid var(--accent-gold);
-            max-width: 750px;
-        }
-
-        .close-btn {
-            position: absolute;
-            top: 20px; right: 20px;
-            font-size: 1.8rem;
-            color: var(--text-muted);
-            cursor: pointer;
-            line-height: 1;
-        }
-
-        .close-btn:hover { color: var(--accent-red); }
-
-        .modal-header {
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 15px;
-            margin-bottom: 20px;
-        }
-
-        .modal-title {
-            font-size: 1.6rem;
-            color: var(--accent-blue);
-            margin-bottom: 5px;
-        }
-
-        .modal-meta {
-            font-size: 0.88rem;
-            color: var(--text-muted);
-            display: flex;
-            gap: 15px;
-            flex-wrap: wrap;
-        }
-
-        .section-box {
-            background-color: rgba(15, 23, 42, 0.6);
-            border-radius: 8px;
-            padding: 16px;
-            margin-bottom: 18px;
-            border: 1px solid rgba(255, 255, 255, 0.05);
-        }
-
-        .section-title {
-            font-size: 1rem;
-            font-weight: bold;
-            color: var(--accent-blue);
-            margin-bottom: 8px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .section-title.critical { color: var(--accent-red); }
-
-        .critical-appraisal-box {
-            background-color: rgba(244, 63, 94, 0.08);
-            border: 1px solid rgba(244, 63, 94, 0.4);
-            border-radius: 8px;
-            padding: 18px;
-            margin-top: 20px;
-        }
-
-        .predecessor-link {
-            color: var(--accent-gold);
-            text-decoration: underline;
-            cursor: pointer;
-            font-weight: bold;
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-        }
-
-        .predecessor-link:hover { color: #fbbf24; }
-
-        /* Form Controls */
-        .form-group {
-            margin-bottom: 15px;
-        }
-
-        .form-group label {
-            display: block;
-            font-size: 0.88rem;
-            color: var(--text-muted);
-            margin-bottom: 6px;
-            font-weight: bold;
-        }
-
-        .form-control {
-            width: 100%;
-            background-color: rgba(15, 23, 42, 0.8);
-            border: 1px solid var(--border-color);
-            color: var(--text-main);
-            padding: 10px;
-            border-radius: 6px;
-            outline: none;
-            font-size: 0.9rem;
-        }
-
-        .form-control:focus {
-            border-color: var(--accent-blue);
-        }
-
-        textarea.form-control {
-            resize: vertical;
-            min-height: 80px;
-        }
-
-        .form-row {
-            display: flex;
-            gap: 15px;
-        }
-
-        .form-row .form-group {
-            flex: 1;
-        }
-
-        .modal-actions {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-top: 20px;
-            padding-top: 15px;
-            border-top: 1px solid var(--border-color);
-        }
-    </style>
+    .sub-modal-content {
+      background: #0f172a;
+      border: 2px solid var(--accent-gold);
+      border-radius: 16px;
+      max-width: 650px;
+      width: 100%;
+      max-height: 75vh;
+      overflow-y: auto;
+      padding: 24px;
+      position: relative;
+    }
+  </style>
 </head>
 <body>
 
-    <header>
-        <div class="header-title">
-            <h1>🩺 Dr. sai Oncology Knowledge Base</h1>
-            <p>肺癌領域 薬物療法・臨床試験 持続的ナレッジデータベース</p>
-        </div>
-        <div class="controls">
-            <button class="btn btn-primary" onclick="openEditModal()"><span style="font-size:1.1rem;">+</span> 新規試験を追加</button>
-            <button class="btn btn-success" onclick="exportData()">📥 バックアップ保存 (JSON)</button>
-            <button class="btn btn-warning" onclick="document.getElementById('importFile').click()">📤 データ統合・復元 (JSON)</button>
-            <input type="file" id="importFile" style="display: none;" accept=".json" onchange="importData(event)">
-            <button class="btn" onclick="resetToDefault()" style="color: var(--accent-red); border-color: rgba(244,63,94,0.4);">🔄 初期化</button>
-        </div>
-    </header>
-
-    <div class="stats-bar">
-        <div class="stats-left">
-            <button class="btn filter-btn active" onclick="filterTrials('all')">全表示 (<span id="countAll">0</span>)</button>
-            <button class="btn filter-btn" onclick="filterTrials('latest')">最先端・最新 (<span id="countLatest">0</span>)</button>
-            <button class="btn filter-btn" onclick="filterTrials('history')">歴史的・基本 (<span id="countHistory">0</span>)</button>
-        </div>
-        <div>
-            <input type="text" id="searchInput" class="search-box" placeholder="試験名・薬剤名・タグで検索..." oninput="handleSearch()">
-        </div>
+  <header>
+    <div>
+      <h1>🩺 Dr. Sai Oncology Dashboard</h1>
+      <div class="subtitle">肺癌薬物療法・最新臨床試験 Critical Appraisal データベース</div>
     </div>
-
-    <div class="grid-container" id="trialsGrid">
-        <!-- カードを動的生成 -->
+    <div class="controls">
+      <input type="text" id="searchInput" class="search-box" placeholder="試験名、薬剤、領域で検索..." oninput="filterTrials()">
+      <button class="filter-btn active" onclick="setFilter('all')">全15個表示</button>
+      <button class="filter-btn" onclick="setFilter('latest')">最先端・最新 (10)</button>
+      <button class="filter-btn" onclick="setFilter('history')">歴史的・基本 (5)</button>
     </div>
+  </header>
 
-    <!-- メイン詳細モーダル -->
-    <div class="modal" id="detailModal">
-        <div class="modal-content">
-            <span class="close-btn" onclick="closeModal()">&times;</span>
-            <div class="modal-header">
-                <div class="modal-title" id="mTitle">Trial Name</div>
-                <div class="modal-meta" id="mMeta">Journal / Year / Author</div>
-            </div>
-            
-            <div class="section-box">
-                <div class="section-title">1. 試験背景と臨床的位置づけ (Background)</div>
-                <div id="mBackground"></div>
-            </div>
+  <main class="grid" id="trialsGrid"></main>
 
-            <div class="section-box">
-                <div class="section-title">2. 詳細な試験デザイン (Study Design)</div>
-                <div id="mDesign"></div>
-            </div>
+  <!-- メイン詳細モーダル -->
+  <div class="modal-overlay" id="detailModal">
+    <div class="modal-content">
+      <button class="close-btn" onclick="closeModal('detailModal')">&times;</button>
+      <h2 id="modalTitle" style="margin-bottom: 16px; color: var(--text-main);"></h2>
+      
+      <div class="modal-section">
+        <h3>1. 試験背景と臨床的位置づけ (Background)</h3>
+        <p id="modalBackground"></p>
+      </div>
 
-            <div class="section-box">
-                <div class="section-title">3. 詳細な結果と安全性データ (Endpoints & Results)</div>
-                <div id="mResults"></div>
-            </div>
+      <div class="modal-section">
+        <h3>2. 詳細な試験デザイン (Study Design)</h3>
+        <p id="modalDesign"></p>
+      </div>
 
-            <div class="section-box">
-                <div class="section-title">4. 著者らの主張と議論 (Discussion)</div>
-                <div id="mDiscussion"></div>
-            </div>
+      <div class="modal-section">
+        <h3>3. 詳細な結果と安全性データ (Endpoints & Results)</h3>
+        <p id="modalResults"></p>
+      </div>
 
-            <div class="critical-appraisal-box">
-                <div class="section-title critical">5. 指導医 sai の深掘り Critical Appraisal</div>
-                <div id="mAppraisal"></div>
-            </div>
+      <div class="modal-section">
+        <h3>4. 著者らの主張と議論 (Discussion)</h3>
+        <p id="modalDiscussion"></p>
+      </div>
 
-            <div class="modal-actions">
-                <button class="btn" style="color: var(--accent-red); border-color: var(--accent-red);" id="btnDelete">🗑️ この試験を削除</button>
-                <button class="btn btn-primary" id="btnEdit">✏️ この試験を編集</button>
+      <div class="critical-appraisal-box">
+        <h3>指導医 sai の深掘り Critical Appraisal</h3>
+        <p id="modalAppraisal" style="margin-top: 8px; font-weight: 500;"></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- サブモーダル (前身試験解説) -->
+  <div class="sub-modal-overlay" id="subModal">
+    <div class="sub-modal-content">
+      <button class="close-btn" onclick="closeModal('subModal')">&times;</button>
+      <h2 id="subModalTitle" style="color: var(--accent-gold); margin-bottom: 12px;"></h2>
+      <div id="subModalBody"></div>
+    </div>
+  </div>
+
+  <script>
+    // 1. 試験データベース（一意キー id で上書き管理）
+    let trialDatabase = [
+      // 最先端・最新試験 (10個)
+      {
+        id: "flaura2",
+        title: "FLAURA2",
+        type: "latest",
+        summary: "EGFR変異陽性NSCLC一次治療におけるオシメルチニブ＋ペメトレキセド/プラチナ併用療法。",
+        predecessorId: "flaura",
+        predecessorName: "FLAURA",
+        background: "EGFRTKI単剤療法に対する耐性克服とCNS移行性の向上を目指し、化学療法併用の有用性を検証。",
+        design: "第III相RCT。EGFR変異陽性未治療NSCLC患者を対象に、オシメルチニブ単剤群 vs オシメルチニブ＋CBDCA/PEM併用群を比較。",
+        results: "PFS 中央値は併用群で25.5ヶ月 vs 単剤群16.7ヶ月 (HR 0.62, p<0.001)。CNS病変有する群でも有意に延着。",
+        discussion: "化学療法併用によるPFSの上乗せ効果が立証された。",
+        appraisal: "PFSの有意差は明白だが、Grade 3以上の有害事象発現率が大幅に上昇（併用群64% vs 単剤群27%）。全生存期間（OS）の成熟データでの真の上乗せ効果と、毒性増強に伴うQOL低下のバランスを慎重に見極める必要がある。"
+      },
+      {
+        id: "mariposa",
+        title: "MARIPOSA",
+        type: "latest",
+        summary: "EGFR変異陽性NSCLCに対するアミバンタナブ＋ラゼルチニブ併用療法。",
+        predecessorId: "flaura",
+        predecessorName: "FLAURA",
+        background: "第3世代EGFR-TKI単剤を超える耐性抑制戦略としてEGFR/MET二重特異性抗体＋第3世代TKIの併用を検証。",
+        design: "第III相試験。アミバンタナブ＋ラゼルチニブ vs オシメルチニブ単剤 vs ラゼルチニブ単剤。",
+        results: "PFS中央値 23.7ヶ月 vs オシメルチニブ群16.6ヶ月 (HR 0.70, p<0.001)。",
+        discussion: "オシメルチニブ単剤に対する明確な優越性を示した。",
+        appraisal: "静脈血栓症（VTE）や皮膚障害、インフュージョンリアクションの頻度が非常に高く、予防的抗凝固療法の併用が推奨されるなど実臨床での管理難易度が高い点には強く注意すべきだ。"
+      },
+      {
+        id: "crown",
+        title: "CROWN",
+        type: "latest",
+        summary: "ALK陽性NSCLC一次治療におけるローラチニブ単剤療法の5年長期追跡。",
+        predecessorId: "allex",
+        predecessorName: "ALEX",
+        background: "第3世代ALK-TKIローラチニブの長期無進行生存率およびCNS再発抑制の限界値を追跡。",
+        design: "第III相試験。ローラチニブ vs クリゾチニブ。",
+        results: "5年PFS率 60%（ローラチニブ群）。PFS中央値未到達。CNS増悪HR 0.06。",
+        discussion: "進行肺癌の薬物療法において前例のない極めて高い長期奏効を示した。",
+        appraisal: "驚異的なPFS延長率だが、高コレステロール血症や中枢神経系有害事象（認知機能障害・情緒障害）の発現頻度が高く、用量調整・休薬の適切なコントロールが臨床上の鍵となる。"
+      },
+      {
+        id: "checkmate77t",
+        title: "CheckMate-77T",
+        type: "latest",
+        summary: "切除可能NSCLCに対するニボルマブ周術期（術前＋術後）療法。",
+        predecessorId: "checkmate816",
+        predecessorName: "CheckMate-816",
+        background: "術前化学免疫療法に加え、術後ニボルマブ継続投与の意義を検証。",
+        design: "第III相RCT。術前ニボルマブ＋化学療法 ➡ 手術 ➡ 術後ニボルマブ vs 術前化学療法＋PBO ➡ 術後PBO。",
+        results: "EFS中央値 未到達 vs 18.4ヶ月 (HR 0.58)。pCR率 25.3% vs 4.7%。",
+        discussion: "周術期免疫療法が標準治療の枠組みを再定義した。",
+        appraisal: "術後PD-1阻害薬の追加投与がpCR（病理学的完全奏効）達成例においても真に必要なのか、過剰治療（Over-treatment）になっていないかについてのサブグループ解析が不十分だ。"
+      },
+      {
+        id: "keynote671",
+        title: "KEYNOTE-671",
+        type: "latest",
+        summary: "切除可能NSCLCにおけるペムブロリズマブ周術期療法。",
+        predecessorId: "checkmate816",
+        predecessorName: "CheckMate-816",
+        background: "早期NSCLCに対するペムブロリズマブの周術期投与によるOS延長を検証。",
+        design: "第III相試験。術前PEM＋化学療法 ➡ 手術 ➡ 術後PEM維持療法。",
+        results: "EFSおよびOSともに有意な延長を達成 (OS HR 0.72)。",
+        discussion: "術前術後一貫したペムブロリズマブ投与が生存期間を改善することを示した。",
+        appraisal: "術後維持療法の完遂率が低く、免疫関連有害事象（irAE）による手術延期リスクや非切除移行例の解析をさらに厳密に行う必要がある。"
+      },
+      {
+        id: "tropionlung01",
+        title: "TROPION-Lung01",
+        type: "latest",
+        summary: "既治療既進行NSCLCに対するDato-DXd (Dato-DXd ADC)。",
+        predecessorId: "tropic01",
+        predecessorName: "TROPIC-01",
+        background: "TROP2を標的とした抗体薬物複合体（ADC）のドセタキセルに対する優越性を検証。",
+        design: "第III相試験。Dato-DXd vs ドセタキセル。",
+        results: "非扁平上皮癌において有意なPFS延長達成 (HR 0.63)。扁平上皮癌ではベネフィットに乏しい。",
+        discussion: "非扁平上皮癌に対する新たな後治療の選択肢となり得る。",
+        appraisal: "組織型（扁平上皮 vs 非扁平上皮）でのベネフィットの乖離が顕著であり、間質性肺炎（ILD）や粘膜炎の毒性マネジメントの観点からも一括りの推奨は極めて危険だ。"
+      },
+      {
+        id: "evoke01",
+        title: "EVOKE-01",
+        type: "latest",
+        summary: "既治療進行NSCLCにおけるサシツズマブ ゴビテカン (SG)。",
+        predecessorId: "tropionlung01",
+        predecessorName: "TROPION-Lung01",
+        background: "TROP2標的ADCサシツズマブ ゴビテカンの化学療法既治療肺癌での有効性を検証。",
+        design: "第III相RCT。SG vs ドセタキセル。",
+        results: "全体集団ではOS主要評価項目未達。抗PD-(L)1抗体非奏効群でのOS延長傾向。",
+        discussion: "全体集団でのネガティブ結果となったが、サブグループでの期待が残る。",
+        appraisal: "プライマリーエンドポイント（OS）を達成できず、後解析でのサブグループでのみ効果を論じるのは統計学的妥当性を欠く。厳しく批判されるべきデザインだ。"
+      },
+      {
+        id: "laura",
+        title: "LAURA",
+        type: "latest",
+        summary: "切除不能Stage III EGFR変異陽性NSCLCに対するCRT後オシメルチニブ維持療法。",
+        predecessorId: "pacific",
+        predecessorName: "PACIFIC",
+        background: "PACIFIC試験で明らかなベネフィットが得られにくいEGFR変異陽性例に対するオシメルチニブの有用性を検証。",
+        design: "第III相試験。CRT後の病勢進行のないEGFR変異陽性例に対するオシメルチニブ vs プラセボ。",
+        results: "PFS中央値 39.1ヶ月 vs 5.6ヶ月 (HR 0.16, p<0.001)。",
+        discussion: "Stage III EGFR変異陽性肺癌の新たな標準治療を確立した。",
+        appraisal: "HR 0.16という圧倒的数字だが、コントロール群での脳転移増悪率が高く、CRT後の経過観察単剤群の治療強度不足が割り引かれて評価されるべき点だ。"
+      },
+      {
+        id: "preserve003",
+        title: "PRESERVE-003",
+        type: "latest",
+        summary: "Trilaciclib併用による小細胞肺癌骨髄抑制軽減と生存期間の検証。",
+        predecessorId: "impower133",
+        predecessorName: "IMpower133",
+        background: "CDK4/6阻害薬による造血幹細胞保護と骨髄抑制保護効果の臨床応用。",
+        design: "第III相RCT。ES-SCLC患者に対するEP＋AtezolizumabにおけるTrilaciclib併用。",
+        results: "血球減少率の低下を認めたが、生存期間（OS/PFS）における明確な上乗せ効果は限定的。",
+        discussion: "支持療法としての有用性は高いが抗腫瘍効果増強には至らず。",
+        appraisal: "骨髄保護というQOL改善効果は評価できるが、薬価に見合ったコストパフォーマンスおよび直接的な抗腫瘍効果延長をもたらさない点への冷静な評価が必要だ。"
+      },
+      {
+        id: "nej039a",
+        title: "NEJ039A",
+        type: "latest",
+        summary: "高齢者EGFR変異陽性肺癌に対するオシメルチニブ減量/間欠投与戦略。",
+        predecessorId: "flaura",
+        predecessorName: "FLAURA",
+        background: "フレイル高齢者における毒性軽減を目指した個別化TKI投与プロトコル。",
+        design: "第II相多センター試験。75歳以上の高齢者に対するオシメルチニブ 40mg/dayでの有効性と安全性。",
+        results: "奏効率およびPFSは標準用量と同等の傾向を示し、有害事象中止率が減少。",
+        discussion: "高齢者における現実的な治療選択肢になり得る。",
+        appraisal: "第II相の小規模データであり、標準用量（80mg）との直接比較RCTが実施されていないため、早期の減量開始が耐性出現時期を早めないかの長期追跡が必須。"
+      },
+
+      // 歴史的・基本試験 (5個)
+      {
+        id: "pacific",
+        title: "PACIFIC",
+        type: "history",
+        summary: "切除不能Stage III NSCLCに対するCCRT後のデュルバルマブ維持療法。",
+        predecessorId: "",
+        predecessorName: "",
+        background: "局所進行非小細胞肺癌における化学放射線療法後の再発抑制戦略。",
+        design: "第III相RCT。CCRT後に病勢進行のないStage III患者をデュルバルマブ vs プラセボに2:1で割付。",
+        results: "5年OS率 42.9% vs 33.4% (HR 0.72)。PFSおよびOSの長期持続的改善。",
+        discussion: "Stage III CCRT後の標準治療（PACIFICレジメン）を完全に確立した。",
+        appraisal: "歴史的なランドマーク試験。ただしEGFR/ALK陽性例に対するサブグループベネフィットの乏しさがLAURA試験などの開発につながった背景を理解すべきだ。"
+      },
+      {
+        id: "flaura",
+        title: "FLAURA",
+        type: "history",
+        summary: "EGFR変異陽性NSCLC一次治療におけるオシメルチニブ単剤療法。",
+        predecessorId: "",
+        predecessorName: "",
+        background: "第1/2世代EGFR-TKIおよびT790M耐性変異に対する第3世代TKIの一次治療導入。",
+        design: "第III相RCT。オシメルチニブ vs ゲフィチニブ/エルロチニブ。",
+        results: "PFS 18.9ヶ月 vs 10.2ヶ月 (HR 0.46)。OS 38.6ヶ月 vs 31.8ヶ月 (HR 0.80)。",
+        discussion: "EGFR変異陽性一次治療のファーストチョイスとしての絶対的地位を構築。",
+        appraisal: "CNS転移抑止力・奏効持続性において圧倒的成果を残したが、後続のFLAURA2やMARIPOSAのような併用療法へのステップアップの基準点となった。"
+      },
+      {
+        id: "jcog0301",
+        title: "JCOG0301",
+        type: "history",
+        summary: "高齢者局所進行NSCLCに対する毎日のカルボプラチン＋胸部放射線同時併用療法。",
+        predecessorId: "",
+        predecessorName: "",
+        background: "70歳以上の高齢者局所進行肺癌における耐容可能なCCRT開発。",
+        design: "第III相RCT。胸部放射線単独 vs 放射線＋デイリーCBDCA（6mg/m2）同時併用。",
+        results: "OS中央値 22.4ヶ月 vs 16.9ヶ月 (HR 0.68, p=0.017)。",
+        discussion: "本邦における高齢者Stage IIIに対する標準治療の一つとして確立。",
+        appraisal: "日本発の極めて重要なランドマーク試験。G8等の高齢者機能評価（CGA）との組み合わせによる適応患者精査の議論の原点。"
+      },
+      {
+        id: "jcog1914",
+        title: "JCOG1914",
+        type: "history",
+        summary: "周術期・局所進行肺癌における最新放射線・薬物療法開発プロトコル。",
+        predecessorId: "",
+        predecessorName: "",
+        background: "本邦JCOG呼吸器外科・内科グループによる標準治療の検証と個別化推進。",
+        design: "多施設共同ランダム化比較試験。",
+        results: "現在解析進行中および標準化プロセス構築中。",
+        discussion: "日本国内の臨床実態に合わせた高精度なエビデンス創出を目指す。",
+        appraisal: "国内多施設共同試験の質の高さを担保するプロトコル。海外データとの適応差異を見極める上での必須知識。"
+      },
+      {
+        id: "checkmate816",
+        title: "CheckMate-816",
+        type: "history",
+        summary: "切除可能NSCLCに対する術前ニボルマブ＋プラチナ併用化学療法。",
+        predecessorId: "",
+        predecessorName: "",
+        background: "術前免疫療法単独または化学療法併用による病理学的完全奏効（pCR）と生存率向上。",
+        design: "第III相RCT。術前ニボルマブ＋化学療法 3コース vs 術前化学療法単独 3コース。",
+        results: "EFS中央値 31.6ヶ月 vs 20.8ヶ月 (HR 0.63)。pCR率 24.0% vs 2.2%。",
+        discussion: "早期肺癌に対する周術期免疫療法の時代の幕開けとなった。",
+        appraisal: "術前3コースのみで達成された高いpCR率は圧巻だが、術後の追加投与が不要か否かの問いを残し、 CheckMate-77T等への発展につながった。"
+      }
+    ];
+
+    // 重複防止・更新関数 (upsert)
+    function upsertTrial(newTrial) {
+      const index = trialDatabase.findIndex(t => t.id === newTrial.id);
+      if (index !== -1) {
+        trialDatabase[index] = { ...trialDatabase[index], ...newTrial };
+      } else {
+        trialDatabase.push(newTrial);
+      }
+    }
+
+    let currentFilter = 'all';
+
+    // フィルタ・描画関数
+    function renderGrid() {
+      const grid = document.getElementById('trialsGrid');
+      const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+      grid.innerHTML = '';
+
+      let filtered = trialDatabase.filter(trial => {
+        const matchesFilter = currentFilter === 'all' || trial.type === currentFilter;
+        const matchesSearch = trial.title.toLowerCase().includes(searchTerm) ||
+                              trial.summary.toLowerCase().includes(searchTerm);
+        return matchesFilter && matchesSearch;
+      });
+
+      filtered.forEach(trial => {
+        const card = document.createElement('div');
+        card.className = 'card';
+
+        let predecessorHTML = '';
+        if (trial.predecessorId && trial.predecessorName) {
+          predecessorHTML = `<span class="predecessor-link" onclick="event.stopPropagation(); openSubModal('${trial.predecessorId}')">🔗 前身試験: ${trial.predecessorName}</span>`;
+        }
+
+        card.innerHTML = `
+          <div>
+            <div class="card-header">
+              <span class="card-title">${trial.title}</span>
+              <span class="badge ${trial.type === 'latest' ? 'badge-latest' : 'badge-history'}">
+                ${trial.type === 'latest' ? '最先端' : '歴史的'}
+              </span>
             </div>
+            <div class="card-summary">${trial.summary}</div>
+            ${predecessorHTML}
+          </div>
+          <div class="card-footer">クリックして詳細・saiのCritical Appraisalを表示</div>
+        `;
+
+        card.onclick = () => openDetailModal(trial);
+        grid.appendChild(card);
+      });
+    }
+
+    function setFilter(filterType) {
+      currentFilter = filterType;
+      document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+      event.target.classList.add('active');
+      renderGrid();
+    }
+
+    function filterTrials() {
+      renderGrid();
+    }
+
+    // メインモーダル表示
+    function openDetailModal(trial) {
+      document.getElementById('modalTitle').innerText = trial.title;
+      document.getElementById('modalBackground').innerText = trial.background;
+      document.getElementById('modalDesign').innerText = trial.design;
+      document.getElementById('modalResults').innerText = trial.results;
+      document.getElementById('modalDiscussion').innerText = trial.discussion;
+      document.getElementById('modalAppraisal').innerText = trial.appraisal;
+
+      document.getElementById('detailModal').style.display = 'flex';
+    }
+
+    // サブモーダル表示 (前身試験)
+    function openSubModal(predecessorId) {
+      const predTrial = trialDatabase.find(t => t.id === predecessorId);
+      if (!predTrial) return;
+
+      document.getElementById('subModalTitle').innerText = `🔗 前身・基本試験: ${predTrial.title}`;
+      document.getElementById('subModalBody').innerHTML = `
+        <p style="margin-bottom: 12px;"><strong>【概要】</strong> ${predTrial.summary}</p>
+        <p style="margin-bottom: 12px;"><strong>【試験デザイン】</strong> ${predTrial.design}</p>
+        <p style="margin-bottom: 12px;"><strong>【主要結果】</strong> ${predTrial.results}</p>
+        <div style="background: rgba(245, 158, 11, 0.1); border: 1px solid var(--accent-gold); padding: 12px; border-radius: 8px; margin-top: 12px;">
+          <strong style="color: var(--accent-gold);">指導医 sai の視点:</strong><br>
+          ${predTrial.appraisal}
         </div>
-    </div>
+      `;
 
-    <!-- サブモーダル（前身試験用） -->
-    <div class="sub-modal" id="subModal">
-        <div class="sub-modal-content">
-            <span class="close-btn" onclick="closeSubModal()">&times;</span>
-            <div class="modal-header">
-                <div class="modal-title" id="smTitle" style="color: var(--accent-gold);">Predecessor Trial Name</div>
-                <div class="modal-meta" id="smMeta">Journal / Year / Author</div>
-            </div>
-            <div class="section-box">
-                <div class="section-title">PICO & Summary</div>
-                <div id="smSummary"></div>
-            </div>
-            <div class="critical-appraisal-box" style="border-color: var(--accent-gold);">
-                <div class="section-title" style="color: var(--accent-gold);">sai's Insight on Predecessor</div>
-                <div id="smAppraisal"></div>
-            </div>
-        </div>
-    </div>
+      document.getElementById('subModal').style.display = 'flex';
+    }
 
-    <!-- 追加・編集用モーダル -->
-    <div class="modal" id="editModal">
-        <div class="modal-content" style="max-width: 800px;">
-            <span class="close-btn" onclick="closeEditModal()">&times;</span>
-            <div class="modal-header">
-                <div class="modal-title" id="editModalTitle">新規試験の追加・編集</div>
-            </div>
-            <form id="trialForm" onsubmit="saveTrial(event)">
-                <input type="hidden" id="fId">
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>試験ID (半角英数字・小文字, 例: "flaura2") *必須</label>
-                        <input type="text" id="fIdInput" class="form-control" required placeholder="例: flaura2">
-                    </div>
-                    <div class="form-group">
-                        <label>区分 *必須</label>
-                        <select id="fType" class="form-control" required>
-                            <option value="latest">最先端・最新 (Latest)</option>
-                            <option value="history">歴史的・ランドマーク (Landmark)</option>
-                        </select>
-                    </div>
-                </div>
+    function closeModal(modalId) {
+      document.getElementById(modalId).style.display = 'none';
+    }
 
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>試験名 (Title) *必須</label>
-                        <input type="text" id="fTitle" class="form-control" required placeholder="例: FLAURA2">
-                    </div>
-                    <div class="form-group">
-                        <label>サブタイトル (Subtitle)</label>
-                        <input type="text" id="fSubtitle" class="form-control" placeholder="例: Osimertinib + プラチナ併用ペメトレキセド">
-                    </div>
-                </div>
-
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>掲載誌 / 年 (Journal)</label>
-                        <input type="text" id="fJournal" class="form-control" placeholder="例: N Engl J Med 2023">
-                    </div>
-                    <div class="form-group">
-                        <label>筆頭著者 (First Author)</label>
-                        <input type="text" id="fAuthor" class="form-control" placeholder="例: Planchard D et al.">
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label>タグ (カンマ区切り)</label>
-                    <input type="text" id="fTags" class="form-control" placeholder="例: EGFR, Osimertinib, Chemotherapy, 1st-line">
-                </div>
-
-                <div class="form-group">
-                    <label>カード用 1行要約 (One-Liner)</label>
-                    <textarea id="fOneLiner" class="form-control" rows="2" placeholder="カード一覧に表示される概要文章"></textarea>
-                </div>
-
-                <div class="form-group">
-                    <label>1. 試験背景と臨床的位置づけ (Background)</label>
-                    <textarea id="fBackground" class="form-control" rows="3"></textarea>
-                </div>
-
-                <div class="form-group">
-                    <label>2. 詳細な試験デザイン (Study Design)</label>
-                    <textarea id="fDesign" class="form-control" rows="3" placeholder="前身試験リンクを埋め込む場合は <span class='predecessor-link' onclick='openSubModal(&quot;flaura&quot;)'>🔗 前身試験: FLAURA</span> のように記述できます"></textarea>
-                </div>
-
-                <div class="form-group">
-                    <label>3. 詳細な結果と安全性データ (Endpoints & Results)</label>
-                    <textarea id="fResults" class="form-control" rows="3"></textarea>
-                </div>
-
-                <div class="form-group">
-                    <label>4. 著者らの主張と議論 (Discussion)</label>
-                    <textarea id="fDiscussion" class="form-control" rows="3"></textarea>
-                </div>
-
-                <div class="form-group">
-                    <label>5. 指導医 sai の深掘り Critical Appraisal</label>
-                    <textarea id="fAppraisal" class="form-control" rows="4"></textarea>
-                </div>
-
-                <div class="modal-actions">
-                    <button type="button" class="btn" onclick="closeEditModal()">キャンセル</button>
-                    <button type="submit" class="btn btn-primary">保存して反映</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <script>
-        // デフォルトの15試験データ（そのまま完全収録）
-        const defaultTrialsData = [
-            {
-                id: "ipass",
-                type: "history",
-                title: "IPASS",
-                subtitle: "EGFR遺伝子変異陽性肺癌におけるTKI活性決定打",
-                journal: "N Engl J Med 2009",
-                firstAuthor: "Mok TS et al.",
-                tags: ["EGFR", "Gefitinib", "Phase III", "1st-line"],
-                oneLiner: "東アジアの非喫煙・軽喫煙腺癌において、GefitinibとCBDCA+PTXを比較。EGFR変異陽性例におけるTKIの圧倒的PFS優越性を証明。",
-                background: "化学療法一律投与の時代から、バイオマーカーに基づく個別化医療（Precision Medicine）へと劇的なパラダイムシフトをもたらしたランドマーク第III相試験。",
-                design: "東アジアの未治療・非喫煙/軽喫煙の進行腺癌1,217例をGefitinib群とCBDCA+PTX群に1:1ランダム化。一次評価項目はPFS（非劣性・優越性検証）。後解析でEGFR変異の有無別に解析。",
-                results: "全体解析ではPFSのHR 0.74 (p<0.001)。EGFR変異陽性サブグループ（n=261）において、Gefitinib群のPFSは著明に延長（HR 0.48, 95% CI: 0.36-0.64, p<0.001, mPFS 9.5 vs 6.3ヶ月）。一方、変異陰性例ではGefitinib群が著しく劣悪（HR 2.85）。OSは両群で有意差なし（クロスオーバーの影響）。",
-                discussion: "EGFR遺伝子変異検索が、進行非小細胞肺癌の初回治療方針決定において絶対的に不可欠であることを立証した。",
-                appraisal: "非常に美しく歴史を塗り替えた試験だが、当初はバイオマーカー（EGFR変異）での事前絞り込みではなく『臨床的特徴（東アジア・非喫煙腺癌）』で患者を集積した点には注意が必要だ。結果的に変異陰性例へのTKI投与が著しい不利益をもたらしたことは、バイオマーカー未選択でのドライバー遺伝子阻害薬投与のリスクを強く物語っている。OSの差が出なかった点についても、後治療でのクロスオーバーが高度に影響しており、PFSサロゲートの正当性を議論する良い教材だね。"
-            },
-            {
-                id: "keynote024",
-                type: "history",
-                title: "KEYNOTE-024",
-                subtitle: "PD-L1高発現NSCLCに対する抗PD-1抗体単剤療法の金字塔",
-                journal: "N Engl J Med 2016",
-                firstAuthor: "Reck M et al.",
-                tags: ["PD-L1 ≥50%", "Pembrolizumab", "Phase III", "1st-line"],
-                oneLiner: "PD-L1 TPS ≥50%のEGFR/ALK陰性進行NSCLCに対し、Pembrolizumab単剤がプラチナ併用化学療法に対してPFSおよびOSを有意に延長。",
-                background: "免疫チェックポイント阻害薬（ICI）が、細胞障害性抗がん剤を退けてドライバー遺伝子陰性NSCLCの1次治療トップバッターに躍り出たエポックメイキングな試験。",
-                design: "PD-L1 TPS ≥50%かつEGFR/ALK野生型の未治療進行NSCLC 305例を、Pembrolizumab（200mg 3週毎）群と化学療法（プラチナダブレット）群に1:1ランダム化。一次評価項目はPFS。化学療法群からのクロスオーバーを許容。",
-                results: "PFSはPembrolizumab群で有意に延長（mPFS 10.3 vs 6.0ヶ月, HR 0.50, p<0.001）。OSも強力に延長（HR 0.60, p=0.005）。Grade 3以上の治療関連有害事象はPembrolizumab群で著しく低度（26.6% vs 53.3%）。",
-                discussion: "PD-L1高発現例において、単剤ICIが化学療法を全生存期間・毒性両面で凌駕することを示した。",
-                appraisal: "TPS 50%以上という厳格なカットオフで勝利を確実にした選択眼は実に見事だ。しかし、注意しなければならないのは、実際の臨床現場で『TPS 50%以上』と判定された患者群のヘテロジェネティクス（TPS 50-74%と90-100%での効果差）だ。また、STK11やKEAP1共変異をもつ症例では単剤ICIの抵抗性が知られており、この時代には見えていなかった分子プロファイルの影を意識してデータを読み解く必要がある。"
-            },
-            {
-                id: "pacific",
-                type: "history",
-                title: "PACIFIC",
-                subtitle: "ステージIII局所進行NSCLCのCRT後維持療法",
-                journal: "N Engl J Med 2017 / 2018",
-                firstAuthor: "Antonia SJ et al.",
-                tags: ["Stage III", "Durvalumab", "CRT", "Consolidation"],
-                oneLiner: "白金系抗がん剤同時化学放射線療法（CCRT）後に進行のないIII期NSCLCに対し、Durvalumab維持療法がPFSおよびOSを劇的に改善。",
-                background: "数十年間、5年生存率が低迷し進歩が不十分であった切除不能III期局所進行NSCLC治療において、初めてCurative intentを大幅に高めた標準治療確立試験。",
-                design: "CCRT受療後に増悪のない切除不能III期NSCLC 713例を、Durvalumab（10mg/kg 2週毎 1年間）群とプラセボ群に2:1でランダム化。主要評価項目はPFSおよびOS。",
-                results: "mPFSは16.8 vs 5.6ヶ月（HR 0.52, p<0.001）。5年OS率は42.9% vs 33.4%（HR 0.72）。放射線肺臓炎の頻度はDurvalumab群でやや高い（全Grade 33.9% vs 24.8%）ものの制御可能。",
-                discussion: "CCRT後のDurvalumab維持療法は、局所進行NSCLCにおける新たな標準治療（PACIFICレジメン）を確立した。",
-                appraisal: "局所制御と全身制御の融合という意味で極めて価値が高い。しかし、批判的視点としては『CCRT終了後42日以内』というアグレッシブなランダム化基準が挙げられる。実際の臨床ではCCRT後の放射線肺臓炎や骨髄抑制、全身疲弊でDurvalumabを開始できない『Real-worldの落とし穴』が存在する。さらに、EMA（欧州）の承認背景にあるPD-L1 <1%症例での効果の乏しさ（後解析）についても、我が国の全例適応とは異なる臨床的解釈が必要だ。"
-            },
-            {
-                id: "flaura",
-                type: "history",
-                title: "FLAURA",
-                subtitle: "第3世代EGFR-TKI Osimertinibの1次治療確立",
-                journal: "N Engl J Med 2018 / 2020",
-                firstAuthor: "Soria JC, Ramalingam SS et al.",
-                tags: ["EGFR", "Osimertinib", "Phase III", "1st-line"],
-                oneLiner: "未治療EGFR変異陽性（Ex19del/L858R）NSCLCにおいて、Osimertinibが標準的第1世代TKI（Gefitinib/Erlotinib）に対してPFS・OSおよび中枢神経系（CNS）移行性で優越性を示した。",
-                background: "T790M耐性変異克服薬として開発されたOsimertinibを初回治療に持ち込み、第1世代TKIを過去のものとしたランドマーク試験。",
-                design: "未治療のEGFR変異陽性進行NSCLC 556例を、Osimertinib（80mg 1日1回）群と標準TKI群に1:1ランダム化。一次評価項目はPFS。CNS転移有病者も包含。",
-                results: "mPFSは18.9 vs 10.2ヶ月（HR 0.46, p<0.001）。mOSは38.6 vs 31.8ヶ月（HR 0.80, p=0.046）。特にCNS転移を有する症例でのCNS増悪リスクを68%低減。",
-                discussion: "OsimertinibはEGFR変異陽性NSCLCの初回治療における世界標準となった。",
-                appraisal: "非常に強力なデータであり標準治療となったが、幾つかの懸念を残した。第一に、L858R点変異サブグループにおけるOS延長の有意性がEx19delに比べて乏しい点（HR 1.00に近い傾向）。第二に、Osimertinib増悪後の耐性メカニズムがC797S変異、MET増幅、小細胞癌転化など極めて多岐にわたり、後治療の選択肢が著しく複雑化した点だ。この課題が、後のFLAURA2やMARIPOSAといった併用療法開発への引き金となった。"
-            },
-            {
-                id: "adaura",
-                type: "history",
-                title: "ADAURA",
-                subtitle: "EGFR変異陽性NSCLC術後補助療法におけるOsimertinib",
-                journal: "N Engl J Med 2020 / 2023",
-                firstAuthor: "Wu YL, Herbst RS et al.",
-                tags: ["EGFR", "Adjuvant", "Osimertinib", "Phase III"],
-                oneLiner: "完全切除後のIB-IIIA期EGFR変異陽性NSCLCに対し、術後補助療法としてのOsimertinib 3年間投与がDFSおよびOSを著明に改善。",
-                background: "従来の術後プラチナ併用化学療法による生存上乗せが数%にとどまっていたなか、周術期領域におけるEGFR-TKIの圧倒的有用性を提示。",
-                design: "完全切除後のIB-IIIA期（AJCC第7版）EGFR変異陽性NSCLC 682例を、術後Osimertinib（3年間）群とプラセボ群に1:1ランダム化。主要評価項目はII-IIIA期におけるDFS。",
-                results: "II-IIIA期でのDFS HRは0.17（p<0.001）。全体での5年OS率は88% vs 78%（HR 0.49, p=0.001）。CNS再発リスクを大規模に低減。",
-                discussion: "EGFR変異陽性NSCLCの術後補助療法としてOsimertinibは標準ケアとして確立された。",
-                appraisal: "Kaplan-Meier曲線の圧倒的な開きは一見完璧に見える。だが、厳格に吟味すべきは『3年間の内服終了後にカーブが交差・接近しないか（単なる再発の先送りではないか）』という点だ。また、高価な薬剤を3年間継続投与することの医療経済学的問題、および術後再発時にOsimertinib耐性株（治療抵抗性）が立ち塞がるリスクについての長期的追跡が極めて重要だ。"
-            },
-            {
-                id: "flaura2",
-                type: "latest",
-                title: "FLAURA2",
-                subtitle: "Osimertinib + プラチナ併用ペメトレキセド化学療法",
-                journal: "N Engl J Med 2023",
-                firstAuthor: "Planchard D et al.",
-                tags: ["EGFR", "Osimertinib", "Chemotherapy", "1st-line"],
-                oneLiner: "EGFR変異陽性進行NSCLCの1次治療において、Osimertinib単剤に対し、Osimertinib＋CBDCA＋PEM併用療法がPFSを有意に延長。",
-                background: "FLAURA試験で確立されたOsimertinib単剤療法を凌駕すべく、初回から化学療法をタッグで投入する強烈なアップフロント戦略。",
-                design: "未治療のEGFR変異陽性（Ex19del/L858R）進行NSCLC 557例を、Osimertinib＋CBDCA＋PEM群とOsimertinib単剤群に1:1ランダム化。一次評価項目は治験医評価PFS。<span class='predecessor-link' onclick='openSubModal(\"flaura\")'>🔗 前身試験: FLAURA</span>",
-                results: "治験医評価のmPFSは25.5 vs 16.7ヶ月（HR 0.62, 95% CI: 0.49-0.79, p<0.001）。脳転移を有する症例でのmPFSは24.9 vs 13.8ヶ月（HR 0.47）。Grade 3以上の有害事象率は併用群で著高（64% vs 27%）。",
-                discussion: "特に脳転移を有する高リスク群やL858R症例に対し、1次治療での強烈な併用療法の妥当性を提示した。",
-                appraisal: "PFSで8.8ヶ月という大差をつけたのは事実だが、代償としての血液毒性や嘔気などのQoL低下は無視できない。OSの成熟データが待たれるが、全例にこの毒性の強い併用を行うべきかには強い疑問が残る。特に『L858Rや脳転移あり、TP53共変異』といった超高リスク群に絞った個別化（Select and Treat）を行うべきであり、毒性とベネフィットのトレードオフを慎重に見極める必要がある。"
-            },
-            {
-                id: "mariposa",
-                type: "latest",
-                title: "MARIPOSA",
-                subtitle: "Amivantamab + Lazertinib vs Osimertinib",
-                journal: "N Engl J Med 2024",
-                firstAuthor: "Cho BC et al.",
-                tags: ["EGFR", "Amivantamab", "Lazertinib", "1st-line"],
-                oneLiner: "EGFR-MET双特性抗体Amivantamab＋第3世代EGFR-TKI Lazertinib併用が、Osimertinib単剤に対してPFSを有意に延長。",
-                background: "EGFRシグナルと主要耐性経路であるMETシグナルを初回から同時に遮断することで、耐性化を根本から低減・遅延させる野心的なアプローチ。",
-                design: "未治療EGFR変異陽性NSCLC 1,074例を、Ami+Lazer群、Osimertinib単剤群、Lazer単剤群に2:2:1でランダム化。一次評価項目はBICR評価PFS。<span class='predecessor-link' onclick='openSubModal(\"flaura\")'>🔗 前身試験: FLAURA</span>",
-                results: "mPFSは23.7 vs 16.6ヶ月（HR 0.70, 95% CI: 0.58-0.85, p<0.001）。DORの中央値は25.8 vs 16.8ヶ月。しかし、インフュージョンリアクション（66%）や皮膚毒性、静脈血栓塞栓症（VTE: 37%）の頻度が著しく高律。",
-                discussion: "Osimertinib単剤をPFSで明確に上回り、新しい1次治療のオプションとなった。",
-                appraisal: "PFSの延長は評価できるが、毒性のマネジメントが臨床における最大のネックだ。予防的抗凝固療法の導入が必要となる点や、静脈投与に伴う患者の受診負担は軽視できない。FLAURA2（化学療法併用）とMARIPOSA（抗体併用）のどちらをどの患者に選択すべきか、バイオマーカーによる直接比較のない現状では、毒性プロファイルと患者の忍容性が現実的な決定要因になってしまう点に課題がある。"
-            },
-            {
-                id: "crown",
-                type: "latest",
-                title: "CROWN (5-Year Update)",
-                subtitle: "ALK陽性NSCLCに対するLorlatinibの異次元のPFS",
-                journal: "J Clin Oncol 2024",
-                firstAuthor: "Solomon BJ et al.",
-                tags: ["ALK", "Lorlatinib", "Phase III", "5-Year"],
-                oneLiner: "未治療ALK融合遺伝子陽性NSCLCにおいて、第3世代ALK-TKI LorlatinibがCrizotinibに対して前例のない圧倒的な5年無悪化生存率を提示。",
-                background: "CNS移行性と耐性変異（G1202R等）への強力な活性をもつLorlatinibを初回投与した際の長期的有効性を検証。",
-                design: "未治療ALK陽性NSCLC 296例をLorlatinib群とCrizotinib群に1:1ランダム化。5年追跡データの更新発表。",
-                results: "Lorlatinib群の5年PFS率は60%（95% CI: 51-68%）、mPFSは未到達（Crizotinib群は9.1ヶ月, HR 0.19）。脳転移を有しない症例での5年CNS進行率はわずか2.4%。",
-                discussion: "固形がんの進行期薬物療法において歴史上類を見ない高いPFS成績を樹立。",
-                appraisal: "HR 0.19、5年経っても過半数が無悪化という結果は驚異的としか言いようがない。ただし、対照群が型遅れのCrizotinibである点（Alectinibとの直接比較ではない）は割り引いて見る必要がある。また、Lorlatinib特有の中枢神経系副作用（認知機能障害、情緒障害）や高脂血症・体重増加の長期管理は、長期生存する患者のQoLに直結するため、腫瘍内科医としての慎重な精神的フォローが求められる。"
-            },
-            {
-                id: "checkmate77t",
-                type: "latest",
-                title: "CheckMate 77T",
-                subtitle: "切除可能NSCLCに対する術前ICI+ chemo ➔ 術後ICI維持療法",
-                journal: "N Engl J Med 2024",
-                firstAuthor: "Cascone T et al.",
-                tags: ["Perioperative", "Nivolumab", "Neoadjuvant", "Adjuvant"],
-                oneLiner: "切除可能Stage II-III NSCLCにおいて、術前Nivolumab＋プラチナダブレット併用 ➔ 手術 ➔ 術後Nivolumab維持療法が、術前化学療法単独群に対しEFSを有意に延長。",
-                background: "KEYNOTE-671等と並び、周術期（Perioperative）における『術前＋術後』免疫療法サンドイッチ戦略の有効性を証明する第III相試験。",
-                design: "切除可能Stage IIA-IIIB NSCLC 461例を、術前Nivo+Chemo(4C)➔手術➔術後Nivo(1年)群と、術前Chemo+Placebo➔手術➔術後Placebo群に1:1ランダム化。主要評価項目はEFS。",
-                results: "mEFSは未到達 vs 18.4ヶ月（HR 0.58, p<0.001）。pCR率は25.3% vs 4.7%。MPR率も35.4% vs 12.1%と著明に改善。",
-                discussion: "切除可能NSCLCにおける周術期Nivolumabアプローチの標準的地位を固めた。",
-                appraisal: "pCR率25%越えは見事である。しかし、常に議論となるのは『術前にpCR（完全病理学的奏効）が得られた症例に、果たして術後1年間のICI維持投与が本当に必要なのか？』という過剰治療（Overtreatment）の問題だ。術前治療のみで十分な症例と、術後維持が必要な症例をctDNA（微小残存病変: MRD）等で層別化するバイオマーカーガイド下の個別化臨床試験が今最も求められている。"
-            },
-            {
-                id: "alina",
-                type: "latest",
-                title: "ALINA",
-                subtitle: "ALK陽性NSCLC完全切除後におけるAlectinib術後補助療法",
-                journal: "N Engl J Med 2024",
-                firstAuthor: "Solomon BJ et al.",
-                tags: ["ALK", "Alectinib", "Adjuvant", "Phase III"],
-                oneLiner: "完全切除後IB-IIIA期ALK陽性NSCLCにおいて、術後Alectinib（2年間）が標準プラチナ併用化学療法に対してDFSを著明に改善。",
-                background: "EGFRにおけるADAURA試験の成功を、ALK融合遺伝子陽性領域へと水平展開した国際共同第III相試験。<span class='predecessor-link' onclick='openSubModal(\"adaura\")'>🔗 前身試験: ADAURA</span>",
-                design: "完全切除後のIB-IIIA期ALK陽性NSCLC 257例を、Alectinib（2年間）群とプラチナ併用化学療法（4サイクル）群に1:1ランダム化。主要評価項目はDFS。",
-                results: "II-IIIA期での2年DFS率は93.8% vs 63.7%（HR 0.24, p<0.001）。CNS DFSのHRも0.22と脳再発を強固に抑制。",
-                discussion: "ALK陽性早期NSCLCの術後補助療法として、化学療法をスキップしてAlectinibを投与する新たな選択肢を提示。",
-                appraisal: "対照群がプラセボではなく『標準化学療法』である点はADAURAより倫理的・臨床的に誠実なデザインと言える。DFS HR 0.24は圧巻だが、2年間の投与期間終了後の『再発曲線の立ち上がり』が懸念される。また、再発時にAlectinib耐性変異（G1202R等）が誘導されていた場合、切除不能再発後の治療選択肢が狭まるリスクをどう評価するかが今後の論点だ。"
-            },
-            {
-                id: "tropion_lung01",
-                type: "latest",
-                title: "TROPION-Lung01",
-                subtitle: "TROP2指向性ADC Datopotamab Deruxtecan (Dato-DXd)",
-                journal: "J Clin Oncol 2024 / ESMO 2023",
-                firstAuthor: "Ahn MJ et al.",
-                tags: ["ADC", "TROP2", "Dato-DXd", "Docetaxel"],
-                oneLiner: "既治療進行NSCLCにおいて、Dato-DXdがDocetaxelに対してPFSを有意に延長。特に非扁平上皮癌（non-sq）で顕著なベネフィットを示した。",
-                background: "抗体薬物複合体（ADC）をNSCLCの2次治療以降に導入し、長年標準であったDocetaxelを置き換えることを目指した注目試験。",
-                design: "1つ以上の全身療法を受けた進行NSCLC 604例を、Dato-DXd（6.0 mg/kg）群とDocetaxel群に1:1ランダム化。主要評価項目はPFSおよびOS。",
-                results: "全体でのmPFSは4.4 vs 3.7ヶ月（HR 0.75, p=0.004）。非扁平上皮癌サブグループではmPFS 5.6 vs 3.7ヶ月（HR 0.63）と良好。一方、扁平上皮癌では効果が乏しい（HR 1.38）。口腔内炎や粘膜炎、ILD（5%）に注意が必要。",
-                discussion: "非扁平上皮NSCLCに対する新たな2次治療の選択肢として有望。",
-                appraisal: "統計的有意差は出たものの、全群でのPFS差はわずか0.7ヶ月に過ぎず、臨床的意義（Clinical Benefit）には疑問符がつく。組織型（Sq vs Non-sq）やTROP2発現強度（DHOスコア等）による効果の解釈が分かれており、バイオマーカーによる絞り込みなしでの全例適応は厳しい。また、DXdペイロード特有の隙のない間質性肺炎（ILD）管理や粘膜炎の予防対策が必須となる。"
-            },
-            {
-                id: "evoke01",
-                type: "latest",
-                title: "EVOKE-01",
-                subtitle: "TROP2指向性ADC Sacituzumab Govitecan (SG) in 2L NSCLC",
-                journal: "J Clin Oncol 2024",
-                firstAuthor: "Paz-Ares L et al.",
-                tags: ["ADC", "TROP2", "Sacituzumab Govitecan", "Failed"],
-                oneLiner: "プラチナ併用化学療法およびICI既治療の進行NSCLCに対し、Sacituzumab GovitecanはDocetaxelに対して主要評価項目であるOSの有意な延長を示せず（Negative Trial）。",
-                background: "乳癌で高い効果を示したTROP2-ADC SGを肺癌へ臨床応用した第III相試験。",
-                design: "既治療進行NSCLC 603例をSG群とDocetaxel群に1:1ランダム化。主要評価項目はOS。",
-                results: "主要評価項目であるOSは、mOS 11.1 vs 9.8ヶ月（HR 0.84, p=0.0534）であり、統計的有意差に届かず。ただし、前治療のICI非奏効例サブグループではOS改善の傾向が観察された。",
-                discussion: "全体としてはプライマリエンドポイント未達であったが、特定のサブグループにおける解析が進められている。",
-                appraisal: "ネガティブ試験としての厳しい現実を受け止めるべきだ。TROP2標的であっても、Dato-DXd（リンカー・ペイロード構成が異なる）とSGで結果が分かれたことは、ADCにおける抗体・リンカー・ペイロード（DAR）のバランスの難しさを示している。全群一律の解析では勝ち目がないことが明確であり、ICI抵抗性プロファイルやTROP2発現量に応じた厳格な集積が次世代試験には不可欠だ。"
-            },
-            {
-                id: "harmoni2",
-                type: "latest",
-                title: "HARMONi-2",
-                subtitle: "EGFR/PD-1 二重特異性抗体 Ivonescimab vs Pembrolizumab",
-                journal: "WCLC 2024 (Abstr OA06.03)",
-                firstAuthor: "Zhou C et al.",
-                tags: ["Bispecific", "PD-1", "VEGF", "Ivonescimab", "1st-line"],
-                oneLiner: "PD-L1陽性（TPS ≥1%）進行NSCLCの1次治療において、Ivonescimab単剤がPembrolizumab単剤に対してPFSを圧倒的に延長（直接対決で勝利）。",
-                background: "PD-1阻害とVEGF阻害を単一の二重特異性抗体（Bispecific Antibody）で同時に行う革新的免疫療法の第III相直接比較試験（中国国内）。",
-                design: "PD-L1 TPS ≥1%の未治療進行NSCLC 398例を、Ivonescimab単剤群とPembrolizumab単剤群に1:1で直接比較ランダム化。一次評価項目はPFS。",
-                results: "mPFSは11.14 vs 5.82ヶ月（HR 0.51, 95% CI: 0.38-0.69, p<0.0001）。PD-L1 TPS 1-49%（HR 0.54）およびTPS ≥50%（HR 0.46）のいずれにおいても一貫してIvonescimabが優越。",
-                discussion: "絶対王者であったPembrolizumabを直接対決（Head-to-head）で撃破した画期的な結果。",
-                appraisal: "絶対王者Pembrolizumabに対してHR 0.51という完勝を収めたインパクトは極めて大きい。腫瘍微小環境におけるPD-1とVEGFの同時阻害の相乗効果（Co-bridging）が薬理学的に機能していることを裏付ける。しかし、本試験は中国単一国でのデータであり、グローバル第III相試験（HARMONi-3等）での再現性が確認されるか、またVEGF阻害に伴う出血・高血圧・蛋白尿などの毒性管理が国際的標準に耐えうるかが厳しく吟味されるべきだ。"
-            },
-            {
-                id: "amigo1",
-                type: "latest",
-                title: "HERTHENA-Lung01",
-                subtitle: "HER3指向性ADC Patritumab Deruxtecan (HER3-DXd)",
-                journal: "J Clin Oncol 2023",
-                firstAuthor: "Jänne PA et al.",
-                tags: ["ADC", "HER3", "HER3-DXd", "EGFR-TKI Resistant"],
-                oneLiner: "EGFR-TKIおよびプラチナ化学療法抵抗性のEGFR変異陽性NSCLCにおいて、HER3-DXdが有望な抗腫瘍効果と奏効期間を示した。",
-                background: "Osimertinib投与後に多様化する複雑な耐性メカニズムに対し、耐性様式を問わず広範に発現しているHER3を標的としたADCアプローチ。",
-                design: "EGFR-TKIおよびプラチナ治療歴のあるEGFR変異陽性NSCLC 225例にHER3-DXd（5.6 mg/kg）を投与する第II相試験。",
-                results: "ORRは29.8%（CR 1例含む）、mPFSは5.5ヶ月、mOSは11.9ヶ月。EGFR耐性メカニズム（EGFR非依存性含む）に関わらず一貫した奏効を観察。",
-                discussion: "TKI耐性後の治療選択肢が限られていたEGFR変異陽性肺癌における有力なサルベージ療法。",
-                appraisal: "TKI耐性後の多岐にわたる耐性遺伝子異常を個別に叩くのではなく、表面に高発現するHER3をトロイの木馬として利用する戦略は非常に合理的だ。奏効率約30%は立派だが、Grade 3以上の血小板減少（21%）やILD（5.3%）といった毒性管理が課題。現在進行中の第III相試験（HERTHENA-Lung02）で化学療法に対する優越性を証明できるかが真の勝負どころだ。"
-            },
-            {
-                id: "laura",
-                type: "latest",
-                title: "LAURA",
-                subtitle: "切除不能Stage III EGFR変異陽性NSCLCに対するCRT後Osimertinib",
-                journal: "N Engl J Med 2024",
-                firstAuthor: "Lu S et al.",
-                tags: ["Stage III", "EGFR", "Osimertinib", "CRT"],
-                oneLiner: "CCRT受療後の切除不能Stage III EGFR変異陽性NSCLCに対し、Osimertinib維持療法がプラセボに対してPFSを劇的に延長（mPFS 39.1 vs 5.6ヶ月）。",
-                background: "PACIFIC試験で標準となったDurvalumab維持療法が、EGFR変異陽性例では効果が乏しいという課題を根本から解決した第III相試験。<span class='predecessor-link' onclick='openSubModal(\"pacific\")'>🔗 前身試験: PACIFIC</span>",
-                design: "CCRT後に増悪のない切除不能Stage III EGFR変異陽性NSCLC 216例を、Osimertinib群とプラセボ群に2:1でランダム化。主要評価項目はBICR評価PFS。",
-                results: "mPFSは39.1 vs 5.6ヶ月（HR 0.16, 95% CI: 0.10-0.24, p<0.001）。新発の脳転移出現率を極めて低度に抑制（22% vs 68%）。",
-                discussion: "切除不能Stage III EGFR変異陽性NSCLCにおける新たな標準治療を打ち立てた。",
-                appraisal: "HR 0.16、mPFS 39.1ヶ月という数値は圧倒的であり、この集団に対するCRT後のOsimertinib投与は文句なしの標準治療となった。しかし、クリティカルに見れば『本群における放射線併用による間質性肺炎/照射後肺障害へのOsimertinibの上乗せ毒性』の長期モニタリングが必要だ。また、プラセボ群での増悪後Osimertinibクロスオーバーが認められている中で、最終的なOS延長がどれほど得られるかは慎重に見極めたい。"
-            }
-        ];
-
-        // グローバル状態
-        let trialsData = [];
-        let currentFilter = 'all';
-        let activeTrialId = null;
-
-        // データ読み込み（LocalStorage 優先）
-        function loadData() {
-            const saved = localStorage.getItem('dr_sai_trials_db');
-            if (saved) {
-                try {
-                    trialsData = JSON.parse(saved);
-                } catch(e) {
-                    console.error("LocalStorage parse error", e);
-                    trialsData = [...defaultTrialsData];
-                }
-            } else {
-                trialsData = [...defaultTrialsData];
-                saveDataToStorage();
-            }
-            updateCounts();
-            applyFilters();
-        }
-
-        function saveDataToStorage() {
-            localStorage.setItem('dr_sai_trials_db', JSON.stringify(trialsData));
-            updateCounts();
-        }
-
-        function updateCounts() {
-            document.getElementById('countAll').innerText = trialsData.length;
-            document.getElementById('countLatest').innerText = trialsData.filter(t => t.type === 'latest').length;
-            document.getElementById('countHistory').innerText = trialsData.filter(t => t.type === 'history').length;
-        }
-
-        // カード描画
-        function renderCards(data) {
-            const grid = document.getElementById('trialsGrid');
-            grid.innerHTML = '';
-
-            data.forEach(trial => {
-                const card = document.createElement('div');
-                card.className = `trial-card ${trial.type}`;
-                card.onclick = () => openModal(trial.id);
-
-                const badgeText = trial.type === 'latest' ? 'Latest' : 'Landmark';
-                const badgeClass = trial.type === 'latest' ? 'badge-latest' : 'badge-history';
-
-                card.innerHTML = `
-                    <div>
-                        <div class="card-header">
-                            <div class="card-title">${trial.title}</div>
-                            <span class="stat-badge ${badgeClass}">${badgeText}</span>
-                        </div>
-                        <div class="card-subtitle">${trial.journal || ''} | ${trial.firstAuthor || ''}</div>
-                        <div class="card-tags">
-                            ${(trial.tags || []).map(t => `<span class="tag">${t}</span>`).join('')}
-                        </div>
-                        <div class="card-one-liner">${trial.oneLiner || ''}</div>
-                    </div>
-                    <div class="card-footer">
-                        <span>${trial.subtitle || ''}</span>
-                        <span>詳細を見る &rarr;</span>
-                    </div>
-                `;
-                grid.appendChild(card);
-            });
-        }
-
-        // フィルタリング
-        function filterTrials(type) {
-            currentFilter = type;
-            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
-            applyFilters();
-        }
-
-        function handleSearch() {
-            applyFilters();
-        }
-
-        function applyFilters() {
-            const query = document.getElementById('searchInput').value.toLowerCase();
-            const filtered = trialsData.filter(t => {
-                const matchesType = (currentFilter === 'all') || (t.type === currentFilter);
-                const matchesSearch = (t.title && t.title.toLowerCase().includes(query)) ||
-                                      (t.subtitle && t.subtitle.toLowerCase().includes(query)) ||
-                                      (t.oneLiner && t.oneLiner.toLowerCase().includes(query)) ||
-                                      (t.tags && t.tags.some(tag => tag.toLowerCase().includes(query)));
-                return matchesType && matchesSearch;
-            });
-            renderCards(filtered);
-        }
-
-        // メイン詳細モーダル
-        function openModal(id) {
-            activeTrialId = id;
-            const trial = trialsData.find(t => t.id === id);
-            if (!trial) return;
-
-            document.getElementById('mTitle').innerText = trial.title + (trial.subtitle ? " - " + trial.subtitle : "");
-            document.getElementById('mMeta').innerText = `${trial.journal || ''} | Author: ${trial.firstAuthor || ''} | Tags: ${(trial.tags || []).join(', ')}`;
-            document.getElementById('mBackground').innerHTML = trial.background || 'なし';
-            document.getElementById('mDesign').innerHTML = trial.design || 'なし';
-            document.getElementById('mResults').innerHTML = trial.results || 'なし';
-            document.getElementById('mDiscussion').innerHTML = trial.discussion || 'なし';
-            document.getElementById('mAppraisal').innerHTML = trial.appraisal || 'なし';
-
-            document.getElementById('btnEdit').onclick = () => { closeModal(); openEditModal(trial.id); };
-            document.getElementById('btnDelete').onclick = () => deleteTrial(trial.id);
-
-            document.getElementById('detailModal').style.display = 'flex';
-        }
-
-        function closeModal() {
-            document.getElementById('detailModal').style.display = 'none';
-        }
-
-        // サブモーダル（前身試験）
-        function openSubModal(predecessorId) {
-            const trial = trialsData.find(t => t.id === predecessorId);
-            if (!trial) {
-                alert("指定された前身試験 [" + predecessorId + "] のデータが見つかりません。");
-                return;
-            }
-
-            document.getElementById('smTitle').innerText = "🔗 前身試験: " + trial.title + " (" + (trial.subtitle || "") + ")";
-            document.getElementById('smMeta').innerText = `${trial.journal || ''} | ${trial.firstAuthor || ''}`;
-            
-            document.getElementById('smSummary').innerHTML = `
-                <p><strong>【概要】</strong> ${trial.oneLiner || ''}</p>
-                <br>
-                <p><strong>【デザイン & 結果】</strong> ${trial.results || ''}</p>
-            `;
-            document.getElementById('smAppraisal').innerHTML = trial.appraisal || 'なし';
-
-            document.getElementById('subModal').style.display = 'flex';
-        }
-
-        function closeSubModal() {
-            document.getElementById('subModal').style.display = 'none';
-        }
-
-        // 編集・追加モーダル
-        function openEditModal(id = null) {
-            const modal = document.getElementById('editModal');
-            const form = document.getElementById('trialForm');
-            form.reset();
-
-            if (id) {
-                const trial = trialsData.find(t => t.id === id);
-                if (trial) {
-                    document.getElementById('editModalTitle').innerText = "試験データの編集: " + trial.title;
-                    document.getElementById('fId').value = trial.id;
-                    document.getElementById('fIdInput').value = trial.id;
-                    document.getElementById('fIdInput').disabled = true; // ID変更不可
-                    document.getElementById('fType').value = trial.type || 'latest';
-                    document.getElementById('fTitle').value = trial.title || '';
-                    document.getElementById('fSubtitle').value = trial.subtitle || '';
-                    document.getElementById('fJournal').value = trial.journal || '';
-                    document.getElementById('fAuthor').value = trial.firstAuthor || '';
-                    document.getElementById('fTags').value = (trial.tags || []).join(', ');
-                    document.getElementById('fOneLiner').value = trial.oneLiner || '';
-                    document.getElementById('fBackground').value = trial.background || '';
-                    document.getElementById('fDesign').value = trial.design || '';
-                    document.getElementById('fResults').value = trial.results || '';
-                    document.getElementById('fDiscussion').value = trial.discussion || '';
-                    document.getElementById('fAppraisal').value = trial.appraisal || '';
-                }
-            } else {
-                document.getElementById('editModalTitle').innerText = "新規試験の追加";
-                document.getElementById('fId').value = "";
-                document.getElementById('fIdInput').disabled = false;
-            }
-
-            modal.style.display = 'flex';
-        }
-
-        function closeEditModal() {
-            document.getElementById('editModal').style.display = 'none';
-        }
-
-        function saveTrial(event) {
-            event.preventDefault();
-
-            const isEdit = !!document.getElementById('fId').value;
-            const newId = document.getElementById('fIdInput').value.trim().toLowerCase();
-
-            if (!isEdit && trialsData.some(t => t.id === newId)) {
-                alert("すでに同じIDの試験が存在します。異なるIDを指定してください。");
-                return;
-            }
-
-            const tagsArray = document.getElementById('fTags').value.split(',').map(t => t.trim()).filter(t => t.length > 0);
-
-            const trialData = {
-                id: isEdit ? document.getElementById('fId').value : newId,
-                type: document.getElementById('fType').value,
-                title: document.getElementById('fTitle').value,
-                subtitle: document.getElementById('fSubtitle').value,
-                journal: document.getElementById('fJournal').value,
-                firstAuthor: document.getElementById('fAuthor').value,
-                tags: tagsArray,
-                oneLiner: document.getElementById('fOneLiner').value,
-                background: document.getElementById('fBackground').value,
-                design: document.getElementById('fDesign').value,
-                results: document.getElementById('fResults').value,
-                discussion: document.getElementById('fDiscussion').value,
-                appraisal: document.getElementById('fAppraisal').value
-            };
-
-            if (isEdit) {
-                const index = trialsData.findIndex(t => t.id === trialData.id);
-                if (index !== -1) trialsData[index] = trialData;
-            } else {
-                trialsData.unshift(trialData); // 先頭に追加
-            }
-
-            saveDataToStorage();
-            closeEditModal();
-            applyFilters();
-            alert("データを保存しました。");
-        }
-
-        function deleteTrial(id) {
-            if (confirm("本当にこの試験データを削除しますか？")) {
-                trialsData = trialsData.filter(t => t.id !== id);
-                saveDataToStorage();
-                closeModal();
-                applyFilters();
-            }
-        }
-
-        // バックアップ・エクスポート (JSON)
-        function exportData() {
-            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(trialsData, null, 2));
-            const downloadAnchor = document.createElement('a');
-            const dateStr = new Date().toISOString().slice(0, 10);
-            downloadAnchor.setAttribute("href", dataStr);
-            downloadAnchor.setAttribute("download", `dr_sai_oncology_backup_${dateStr}.json`);
-            document.body.appendChild(downloadAnchor);
-            downloadAnchor.click();
-            downloadAnchor.remove();
-        }
-
-        // ★スマートマージ対応版：復元・インポート (JSON)
-        function importData(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    const imported = JSON.parse(e.target.result);
-                    if (Array.isArray(imported)) {
-                        // 読み込み方式の確認ダイアログ
-                        const choice = confirm(
-                            `ファイルから ${imported.length} 件の試験データを検出しました。\n\n` +
-                            `【OK】: 現在のデータに統合（追加・更新）する [おすすめ]\n` +
-                            `【キャンセル】: 全データをこのファイルで置き換える（上書き）`
-                        );
-
-                        if (choice) {
-                            // 追加・結合 (スマートマージ) ロジック
-                            let addedCount = 0;
-                            let updatedCount = 0;
-
-                            imported.forEach(newTrial => {
-                                const index = trialsData.findIndex(t => t.id === newTrial.id);
-                                if (index !== -1) {
-                                    trialsData[index] = newTrial; // 既存IDは最新で更新
-                                    updatedCount++;
-                                } else {
-                                    trialsData.push(newTrial); // 新規IDは末尾に追加
-                                    addedCount++;
-                                }
-                            });
-
-                            saveDataToStorage();
-                            applyFilters();
-                            alert(`データの統合が完了しました。\n（新規追加: ${addedCount}件 / 更新: ${updatedCount}件）`);
-
-                        } else {
-                            // 完全上書き処理
-                            if (confirm("本当に既存のデータを全削除して、このファイルの内容に置き換えますか？")) {
-                                trialsData = imported;
-                                saveDataToStorage();
-                                applyFilters();
-                                alert("データを上書き置き換えしました。");
-                            }
-                        }
-                    } else {
-                        alert("不正なJSONファイル形式です。配列形式のデータが必要です。");
-                    }
-                } catch (err) {
-                    alert("JSONファイルの解析に失敗しました: " + err.message);
-                }
-                // ファイル入力値をリセットして同じファイルの再選択を可能にする
-                event.target.value = '';
-            };
-            reader.readAsText(file);
-        }
-
-        // リセット
-        function resetToDefault() {
-            if (confirm("全ての追加・編集を破棄して、初期状態(15試験)に戻しますか？")) {
-                localStorage.removeItem('dr_sai_trials_db');
-                loadData();
-            }
-        }
-
-        // 初期化実行
-        window.onload = () => {
-            loadData();
-        };
-
-        // 外側クリックで閉じる
-        window.onclick = function(event) {
-            const modal = document.getElementById('detailModal');
-            const subModal = document.getElementById('subModal');
-            const editModal = document.getElementById('editModal');
-            if (event.target === modal) closeModal();
-            if (event.target === subModal) closeSubModal();
-            if (event.target === editModal) closeEditModal();
-        }
-    </script>
+    // 初期化描画
+    renderGrid();
+  </script>
 </body>
 </html>
